@@ -1,0 +1,146 @@
+---
+title: "CSC 587 Homework 1"
+author: "Corey Osborne"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+We read Su_raw_matrix.txt into a data frame "su"
+```{r}
+su <- read.delim("Su_raw_matrix.txt")
+```
+
+
+Gets mean and standard deviation of Liver_2.CEL column,as well as the column mean and sum, and than print the results
+```{r}
+liver2_mean <- mean(su$Liver_2.CEL)
+liver2_sd <- sd(su$Liver_2.CEL)
+
+col_means <- colMeans(su)
+col_sums <- colSums(su)
+
+print(liver2_mean)
+print(liver2_sd)
+print(col_means)
+print(col_sums)
+```
+
+
+Here we generate 10,000 random numbers to use for plotting histograms and normal distributions. We do one with a smaller standard deviation of 0.2, and another with a standard deviation of 0.5. 
+```{r}
+randomNum1 <- rnorm(10000, mean=0, sd=0.2)
+hist(randomNum1, xlim=c(-5,5), main="mean=0, sd=0.2", xlab="Value", col="blue")
+
+randomNum2 <- rnorm(10000, mean=0, sd=0.5)
+hist(randomNum2, xlim=c(-5,5), main="mean=0, sd=0.5", xlab="value", col="green")
+
+```
+
+
+dat will be a sample dataset with two categories, A and B, which will contain 200 values each and then normally distributes, where A has a mean of 0 and B has a mean of 0.8.
+```{r}
+library(ggplot2)
+dat <- data.frame(cond = factor(rep(c("A", "B"), each=200)), 
+                  rating = c(rnorm(200),rnorm(200, mean=.8)))
+```
+
+
+This will produce an overlaid histogram, plotting 'rating' attribute, with bins of 0.5 from the dat sample dataset
+```{r}
+ggplot(dat, aes(x=rating, fill=cond)) +
+  geom_histogram(binwidth=.5, alpha=.5, position="identity")
+```
+
+
+An interleaved histogram of the dat dataset, plotting 'rating' attribute (two side-by-side histograms)
+```{r}
+ggplot(dat, aes(x=rating, fill=cond)) + 
+  geom_histogram(binwidth=.5, position="dodge")
+```
+
+
+Density plots of dat
+```{r}
+ggplot(dat, aes(x=rating, colour=cond)) + geom_density()
+```
+
+
+Density plots of dat with fill
+```{r}
+ggplot(dat, aes(x=rating, fill=cond)) + geom_density(alpha=.3)
+```
+
+
+Instead of using random sample set (dat), we'll use a diabetes dataset produced from diabetes_train.csv
+```{r}
+diabetes <- read.csv("diabetes_train.csv")
+```
+
+
+Overlaid histogram of diabetes dataset, plotting mass attribute
+```{r}
+ggplot(diabetes, aes(x=mass, fill=class)) +
+  geom_histogram(binwidth=.5, alpha=.5, position="identity")
+```
+
+
+Interleaved histogram of diabetes dataset, plotting mass attribute
+```{r}
+ggplot(diabetes, aes(x=mass, fill=class)) + 
+  geom_histogram(binwidth=.5, position="dodge")
+```
+
+
+Diabetes dataset density plot
+```{r}
+ggplot(diabetes, aes(x=mass, colour=class)) + geom_density()
+```
+
+
+Diabetes dataset density plot with fill
+```{r}
+ggplot(diabetes, aes(x=mass, fill=class)) + geom_density(alpha=.3)
+```
+
+```{r}
+library(tidyverse)
+passengers <- read.csv("titanic.csv")
+```
+
+
+Here we remove any rows with missing values and provide a summary of statistical information
+```{r}
+passengers %>% drop_na() %>% summary()
+```
+
+
+This filters and then creates a new dataset containing only male passengers (only 10 displayed)
+```{r}
+passengers %>% filter(Sex == "male") %>% head(10)
+```
+
+
+We then sort all passengers by Fare, in descending order (the highest-paying passengers will appear first) ) (only 10 displayed)
+```{r}
+passengers %>% arrange(desc(Fare)) %>% head(10)
+```
+
+
+This calculates the total number of family members onboard, where Parch is parents/children, and SibSp is siblings/spouse (only 10 displayed)
+```{r}
+passengers %>% mutate(Famsize = Parch + SibSp) %>% head(10)
+```
+
+
+Here we check the average ticket fare by gender, as well as find the total number of survivors per gender
+```{r}
+passengers %>% group_by(Sex) %>% 
+  summarise(meanFare = mean(Fare), numSurv = sum(Survived))
+```
+
+
+Here we use quantile to calculate the 10th, 30th, 50th, and 60th percentiles of the skin attribute from the diabetes dataset
+```{r}
+percentiles <- quantile(diabetes$skin, probs = c(0.1, 0.3, 0.5, 0.6))
+print(percentiles)
+```
